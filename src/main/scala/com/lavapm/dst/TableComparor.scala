@@ -1,7 +1,7 @@
 package com.lavapm.dst
 
 
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{SaveMode,SparkSession}
 import org.apache.spark.sql.catalog.Column
 
 
@@ -52,6 +52,12 @@ object TableComparor {
       .appName("Table Comparor")
       .getOrCreate()
 
+    println(" **************** TableComparor:: confirmTableAndColumnExist(): started.")
+    confirmTableAndColumnExist(spark, leftTable, leftPrimaryKey, leftColumn, rightTable, rightPrimaryKey, rightColumn)
+
+    println(" **************** TableComparor:: compareTableRecordCount(): started.")
+    compareTableRecordCount(spark, leftTable, leftPrimaryKey, rightTable, rightPrimaryKey, resPath4LeftRecord, resPath4RightRecord)
+
     println(" **************** TableComparor:: compareTableRecordCount(): started.")
     compareTableRecordCount(spark, leftTable, leftPrimaryKey, rightTable, rightPrimaryKey, resPath4LeftRecord, resPath4RightRecord)
 
@@ -68,6 +74,7 @@ object TableComparor {
                                  leftPrimaryKey: String,
                                  leftColumn: String,
                                  rightTable: String,
+                                 rightPrimaryKey: String,
                                  rightColumn: String) : Unit = {
 
     import spark.implicits._
@@ -87,6 +94,12 @@ object TableComparor {
 
     leftColumn.split(",").foreach { column => checkExist(column, leftColumnInDB) }
 
+    val rightColumnInDB = spark.catalog.listColumns(rightTable).map(_.name).collect
+
+    if (!rightColumnInDB.contains(rightPrimaryKey))
+      throw new Exception(s" Primary Key ${rightPrimaryKey} does NOT exist!")
+
+    rightColumn.split(",").foreach { column => checkExist(column, rightColumnInDB) }
 
   }
 
@@ -98,7 +111,7 @@ object TableComparor {
 
 
   /**
-   * generate audience by system tag.
+   * Compare the count.
    *
    */
   def compareTableRecordCount(spark: SparkSession,
@@ -111,14 +124,12 @@ object TableComparor {
 
     import spark.implicits._
 
-    // Confirm the table exist.
-    if(!spark.catalog.tableExists(leftTable))
-      throw new Exception(" Table " + leftTable + " does NOT exist!");
+    // Read the primary key into dataframe.
+    val leftDf = spark.sql(s"select ${leftPrimaryKey} from ${leftTable}")
+    val rightDf = spark.sql(s"select ${leftPrimaryKey} from ${leftTable}")
 
-    if(!spark.catalog.tableExists(rightTable))
-      throw new Exception(" Table " + rightTable + " does NOT exist!");
-
-
+    leftDf.except(rightDf).write.mode(SaveMode.Overwrite).text(resPath4LeftRecord)
+    rightDf.except(leftDf).write.mode(SaveMode.Overwrite).text(resPath4RightRecord)
 
   }
 }

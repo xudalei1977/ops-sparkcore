@@ -12,10 +12,9 @@
     <artifactId>ops-sparkcore</artifactId>
     <url>https://github.com/xudalei1977/ops-sparkcore.git</url>
     <version>1.0.0</version>
-    <description>main functions using in Persona and DMP in lavapm</description>
+    <description>main functions using in Persona and DMP</description>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-core</artifactId>
@@ -56,14 +55,14 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_${scala.version}</artifactId>
         </dependency>
-        <dependency><!-- Spark Streaming Kafka -->
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming-kafka-0-10_${scala.version}</artifactId>
-        </dependency>
+        <!-- Spark Streaming Kafka -->
+        <!-- DspStreaming.scala -->
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_${scala.version}</artifactId>
+            <artifactId>spark-streaming-kafka-0-10_${scala.version}</artifactId>
+            <version>${spark.version}</version>
         </dependency>
+        <!-- ProcessGetuiData.scala -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-hive_${scala.version}</artifactId>
@@ -83,11 +82,6 @@
             <artifactId>fastjson</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/com.huaban/jieba-analysis -->
         <dependency>
             <groupId>com.huaban</groupId>
@@ -96,10 +90,6 @@
         <dependency>
             <groupId>org.json4s</groupId>
             <artifactId>json4s-jackson_2.12</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
         </dependency>
     </dependencies>
 
